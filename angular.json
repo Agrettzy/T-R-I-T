@@ -6,7 +6,7 @@
   },
   "newProjectRoot": "projects",
   "projects": {
-    "Bank-a": {
+    "T-R-I-T": {
       "projectType": "application",
       "schematics": {},
       "root": "",
@@ -56,10 +56,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "Bank-a:build:production"
+              "buildTarget": "T-R-I-T:build:production"
             },
             "development": {
-              "buildTarget": "Bank-a:build:development"
+              "buildTarget": "T-R-I-T:build:development"
             }
           },
           "defaultConfiguration": "development"

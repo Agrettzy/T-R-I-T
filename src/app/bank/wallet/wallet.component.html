@@ -1,5 +1,4 @@
 <section class="min-h-screen bg-gradient-to-b from-neutral via-black/80 to-black">
-    <!--  -->
     <nav class="navbar bg-neutral/50 backdrop-blur-md shadow-md px-4 lg:px-12 border-b border-primary/20">
         <div class="flex-1">
             <a class="btn btn-ghost text-xl font-black tracking-tighter text-primary">
@@ -10,6 +9,9 @@
         <div class="flex-none">
             <ul class="menu menu-horizontal px-1 font-bold gap-2 text-gray-200">
                 <li class="hidden sm:block">
+                    <span class="text-xs opacity-70 mr-2">
+                        socio: {{ autServices.user()?.fullName }}
+                    </span>
                     <a routerLink="/bank/profile" class="hover:text-primary">
                         Perfil
                     </a>
@@ -18,43 +20,47 @@
         </div>
     </nav>
 
-    <!--  -->
     <div class="max-w-4xl mx-auto p-6 space-y-10">
-        <div class="stats shadow-2xl bg-gradient-to-b via-black/50 to-neutral/80 w-full border border-white/10 backdrop-blur-md">
 
+        <!--  -->
+        @if (walletServices.balanceResource.isLoading()) {
+            <div class="flex justify-center p-20">
+                <span class="loading loading-orbit loading-lg text-primary"></span>
+            </div>
+        }
+        <!--  -->
+        @else {
+
+        <div
+            class="stats shadow-2xl bg-gradient-to-b via-black/50 to-neutral/80 w-full border border-white/10 backdrop-blur-md">
             <div class="stat">
                 <div class="stat-title text-gray-400">
                     Saldo Disponible
                 </div>
                 <div class="stat-value text-primary text-5xl font-mono">
-                    ₿ 12,450.00
+                    ₿ {{ walletServices.balance() }}
                 </div>
 
                 <div class="stat-actions mt-4 flex gap-2">
-                    <button routerLink="/bank/transfer" class="btn btn-sm btn-ghost border border-white/10">
+                    <button routerLink="/bank/transfer"
+                        class="btn btn-sm btn-ghost border border-white/10 hover:bg-primary hover:text-black">
                         Transferir
                     </button>
                 </div>
             </div>
 
-            <!-- todo cambaiar -->
             <div class="stat hidden md:grid">
                 <div class="stat-title text-gray-400">
-                    Account Key
+                    No. Cuenta
                 </div>
                 <div class="stat-value text-sky-300 text-2xl font-mono bg-black/40 px-3 py-1 rounded-lg shadow-md">
-                    1234 5678 90
+                    {{ walletServices.accountKey() }}
                 </div>
-                <!-- todo hacer que funcione -->
-                <button class="btn btn-sm btn-ghost border border-white/10 mt-2 italic">
-                    Copiado al portapapeles
-                </button>
             </div>
         </div>
 
         <section class="card bg-neutral/80 backdrop-blur-md shadow-xl border border-white/10">
             <div class="card-body p-0">
-
                 <div class="flex justify-between items-center p-6 pb-2 border-b border-white/10">
                     <h2 class="card-title font-bold text-lg uppercase tracking-wider text-white">
                         Últimos Movimientos
@@ -74,72 +80,51 @@
                             </tr>
                         </thead>
                         <tbody>
+                            @for (tx of walletServices.historyResource.value(); track tx.id) {
                             <tr class="hover">
                                 <td>
                                     <div class="flex items-center gap-3">
                                         <div class="avatar placeholder">
-                                            <div class="bg-success/20 text-success rounded-full w-8 flex items-center justify-center">
-                                                <span>↓</span>
+                                            <div [class]="tx.type === 'received' ? 'bg-success/20 text-success' : 'bg-error/20 text-error'"
+                                                class="rounded-full w-8 h-8 flex items-center justify-center font-bold">
+                                                <span>
+                                                    {{ tx.type === 'received' ? '↓' : '↑' }}
+                                                </span>
                                             </div>
                                         </div>
-
                                         <div>
-                                            <div class="font-bold text-white">
-                                                Pago Nómina
+                                          <div class="font-bold text-primary/80">
+                                                {{ tx.type === 'sent' ? 'Enviado a ' + tx.toName : 'Recibido de ' + tx.fromName }}
                                             </div>
                                             <div class="text-xs opacity-50">
-                                                28 Ene 2026
+                                                {{ tx.createdAt }}
                                             </div>
                                         </div>
                                     </div>
                                 </td>
-
                                 <td>
-                                    <span class="badge badge-success badge-sm">
-                                        Completado
+                                    <span [class]="tx.status === 'completed' ? 'badge-success' : 'badge-warning'"
+                                        class="badge badge-sm">
+                                        {{ tx.status }}
                                     </span>
                                 </td>
-                                <td class="text-right font-bold text-success">
-                                    + ₿ 500.00
+                                <td [class]="tx.type === 'received' ? 'text-success' : 'text-error'"
+                                    class="text-right font-bold">
+                                    {{ tx.type === 'received' ? '+' : '-' }} ₿ {{ tx.amount }}
                                 </td>
                             </tr>
-
-                             <tr class="hover">
-                                <td>
-                                    <div class="flex items-center gap-3">
-                                        <div class="avatar placeholder">
-                                            <div class="bg-success/20 text-success rounded-full w-8 flex items-center justify-center">
-                                                <span>↓</span>
-                                            </div>
-                                        </div>
-
-                                        <div>
-                                            <div class="font-bold text-white">
-                                                Pago de no se que
-                                            </div>
-                                            <div class="text-xs opacity-50">
-                                                28 Ene 2026
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
-
-                                <td>
-                                    <span class="badge badge-success badge-sm">
-                                        Completado
-                                    </span>
-                                </td>
-                                <td class="text-right font-bold text-success">
-                                    + ₿ 500.00
+                            } @empty {
+                            <tr>
+                                <td colspan="3" class="text-center py-10 opacity-30 italic">
+                                    No hay transacciones detectadas
                                 </td>
                             </tr>
-
+                            }
                         </tbody>
                     </table>
                 </div>
-
             </div>
         </section>
-
+        }
     </div>
 </section>

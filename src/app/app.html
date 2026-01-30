@@ -1,4 +1,10 @@
 
-<router-outlet />
 
-
+@if (authService.authStatus() === 'checking') {
+    <div class="h-screen flex items-center justify-center">
+        <span class="loading loading-spinner loading-lg"></span>
+    </div>
+}
+@else {
+    <router-outlet />
+}
